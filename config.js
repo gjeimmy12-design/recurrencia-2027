@@ -11,7 +11,7 @@
 var CONFIG = {
 
   // 1) URL de la aplicacion web de Google Apps Script (debe terminar en /exec)
-  URL_APPS_SCRIPT: 'PEGA_AQUI_TU_URL_DE_APPS_SCRIPT',
+  URL_APPS_SCRIPT: 'https://script.google.com/macros/s/AKfycbz3g_izeq6V2QZMjBvA9D7JAn2_XqEVs703sAVNrYDL27JTluf1NbZoKOSVoVbjvUAD/exec',
 
   // 2) Titulo que se muestra en el encabezado
   TITULO: 'Recurrencia 2027',
