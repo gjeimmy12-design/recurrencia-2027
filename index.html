@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es-CO">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0E2A5C">
+  <meta name="description" content="Formulario de recurrencia 2027 — Subdirección para la Infancia, Secretaría Distrital de Integración Social de Bogotá.">
+  <title>Recurrencia 2027 · SDIS</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- ====================================================== ENCABEZADO -->
+  <header class="barra-superior">
+    <div class="barra-superior__fila">
+      <div class="escudo" aria-hidden="true">SDIS</div>
+      <div class="barra-superior__textos">
+        <div class="barra-superior__titulo" id="tituloApp">Recurrencia 2027</div>
+        <div class="barra-superior__sub" id="subtituloApp">Subdirección para la Infancia · SDIS</div>
+      </div>
+    </div>
+    <div class="cinta-amarilla" aria-hidden="true"></div>
+  </header>
+
+  <!-- ============================================= BARRA DE TRABAJO -->
+  <!-- Visible solo mientras se diligencia la lista de niñas y niños -->
+  <div class="barra-trabajo oculto" id="barraTrabajo">
+    <div class="barra-trabajo__fila">
+      <button type="button" class="boton boton--claro" id="btnAtras">◀ ATRÁS</button>
+      <button type="button" class="boton boton--enviar" id="btnEnviar" disabled>ENVIAR</button>
+    </div>
+  </div>
+
+  <main class="contenido">
+
+    <!-- ================================================================
+         PANTALLA 1 · BÚSQUEDA
+         ============================================================== -->
+    <section id="pantallaBusqueda">
+
+      <div id="zonaMensajes"></div>
+
+      <!-- Avances pre-guardados sin enviar -->
+      <div class="tarjeta oculto" id="tarjetaBorradores">
+        <h2 class="tarjeta__titulo">Tiene avances sin enviar</h2>
+        <p class="tarjeta__intro">
+          Estos formularios quedaron pre-guardados en este dispositivo. Mientras no
+          presione ENVIAR, la información no llega a Drive.
+        </p>
+        <div class="borradores" id="borradores"></div>
+      </div>
+
+      <div class="tarjeta">
+        <h2 class="tarjeta__titulo">Consulta de niñas y niños</h2>
+        <p class="tarjeta__intro" id="introApp"></p>
+
+        <div class="cargando-caja" id="cargandoIndice">
+          <span class="rueda"></span>
+          <span>Cargando la base de datos…</span>
+        </div>
+
+        <form id="formBusqueda" class="oculto" autocomplete="off" onsubmit="return false;">
+
+          <div class="fila-doble">
+
+            <!-- Paso 1 · Subdirección Local (columna E de la base) -->
+            <div class="campo">
+              <label class="campo__etiqueta" for="selSubdireccion">
+                <span class="campo__paso">1</span>Subdirección Local
+              </label>
+              <select class="control" id="selSubdireccion">
+                <option value="">Cargando…</option>
+              </select>
+            </div>
+
+            <!-- Paso 2 · Jardín Infantil (columna D, filtrado por la subdirección) -->
+            <div class="campo">
+              <label class="campo__etiqueta" for="selJardin">
+                <span class="campo__paso">2</span>Jardín Infantil
+              </label>
+              <select class="control" id="selJardin" disabled>
+                <option value="">Primero seleccione la subdirección</option>
+              </select>
+              <div class="campo__ayuda" id="ayudaJardin"></div>
+            </div>
+
+            <!-- Paso 3 · Nivel (columna B, filtrado por el jardín) -->
+            <div class="campo">
+              <label class="campo__etiqueta" for="selNivel">
+                <span class="campo__paso">3</span>Nivel
+              </label>
+              <select class="control" id="selNivel" disabled>
+                <option value="">Primero seleccione el jardín</option>
+              </select>
+            </div>
+
+            <!-- Paso 4 · Quién diligencia -->
+            <div class="campo">
+              <label class="campo__etiqueta" for="inpDiligenciadoPor">
+                <span class="campo__paso">4</span>Nombre de quien diligencia
+              </label>
+              <input class="control" id="inpDiligenciadoPor" type="text"
+                     inputmode="text" autocapitalize="words" spellcheck="false"
+                     placeholder="Nombres y apellidos" maxlength="80">
+              <div class="campo__ayuda" id="ayudaNombre">
+                Escriba nombre y apellido. El botón se habilita al diligenciarlo.
+              </div>
+            </div>
+
+          </div>
+
+          <button type="button" class="boton boton--principal boton--iniciar" id="btnIniciar" disabled>
+            INICIAR DILIGENCIAMIENTO DE RECURRENCIA
+          </button>
+
+          <p class="campo__ayuda" id="resumenBase" style="margin-top:14px;text-align:center"></p>
+
+        </form>
+      </div>
+    </section>
+
+    <!-- ================================================================
+         PANTALLA 2 · DILIGENCIAMIENTO
+         ============================================================== -->
+    <section id="pantallaFormulario" class="oculto">
+
+      <div id="mensajesFormulario"></div>
+
+      <div class="contexto" id="contexto"></div>
+
+      <div class="progreso">
+        <div class="progreso__texto">
+          <span id="progresoTexto"><strong>0 de 0</strong> diligenciados</span>
+          <span class="aviso-guardado" id="avisoGuardado"></span>
+        </div>
+        <div class="progreso__barra" role="progressbar" aria-label="Avance del diligenciamiento">
+          <div class="progreso__relleno" id="progresoRelleno"></div>
+        </div>
+      </div>
+
+      <div class="herramientas">
+        <div class="buscador">
+          <label class="solo-lectores" for="inpBuscarNino">Buscar niña o niño</label>
+          <input id="inpBuscarNino" type="search" placeholder="Buscar por nombre o documento…">
+        </div>
+        <button type="button" class="boton boton--secundario boton--pequeno" id="btnTodosSi">
+          Marcar SÍ a los que faltan
+        </button>
+      </div>
+
+      <div class="lista-ninos" id="listaNinos"></div>
+    </section>
+
+    <!-- ================================================================
+         PANTALLA 3 · CONFIRMACIÓN
+         ============================================================== -->
+    <section id="pantallaFin" class="oculto">
+      <div class="tarjeta">
+        <div class="mensaje mensaje--ok" style="margin-bottom:18px">
+          <strong id="finTitulo">Formulario enviado correctamente</strong>
+          La información quedó consolidada en el archivo de Google Drive.
+        </div>
+
+        <div id="finDetalle" style="margin-bottom:20px"></div>
+
+        <button type="button" class="boton boton--principal" id="btnOtroNivel"
+                style="margin-bottom:10px">
+          DILIGENCIAR OTRO NIVEL
+        </button>
+        <button type="button" class="boton boton--secundario" id="btnVolverInicio">
+          VOLVER AL INICIO
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="pie">
+    Secretaría Distrital de Integración Social · Subdirección para la Infancia<br>
+    Recurrencia 2027 · Bogotá D.C.
+  </footer>
+
+  <!-- ====================================================== MODAL -->
+  <div class="capa oculto" id="capaModal" role="dialog" aria-modal="true"
+       aria-labelledby="modalTitulo">
+    <div class="modal">
+      <h3 class="modal__titulo" id="modalTitulo"></h3>
+      <p class="modal__texto" id="modalTexto"></p>
+      <div class="modal__acciones" id="modalAcciones"></div>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
