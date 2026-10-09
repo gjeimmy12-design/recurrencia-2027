@@ -34,7 +34,9 @@
       jardin: '',
       jardinCorto: '',
       nivel: '',
-      diligenciadoPor: ''
+      diligenciadoPor: '',
+      aceptoHabeasData: false,   // casilla de proteccion de datos
+      fechaAceptacionHD: ''      // momento en que se marco la casilla
     },
     ninos: [],               // lista del nivel seleccionado
     respuestas: {},          // { numDoc: { continua, transitoA, transitoSubdireccion, transitoJardin } }
@@ -103,9 +105,101 @@
     $('introApp').textContent = CONFIG.INTRO;
     document.title = CONFIG.TITULO + ' · SDIS';
 
+    prepararHabeasData();
     conectarEventos();
     avisarSiFaltaUrl();
     cargarIndice();
+  }
+
+  /* --------------------------------------------- Proteccion de datos (Habeas) */
+
+  function hdActivo() {
+    return !!(CONFIG.HABEAS_DATA && CONFIG.HABEAS_DATA.ACTIVO);
+  }
+
+  function prepararHabeasData() {
+    var bloque = $('bloqueHabeas');
+
+    // Si el aviso esta desactivado en config, se oculta y se da por aceptado.
+    if (!hdActivo()) {
+      if (bloque) { bloque.classList.add('oculto'); }
+      estado.seleccion.aceptoHabeasData = true;
+      return;
+    }
+
+    var hd = CONFIG.HABEAS_DATA;
+    $('habeasAvisoCorto').textContent = hd.AVISO_CORTO || '';
+    $('habeasDeclaracion').textContent = hd.DECLARACION || '';
+    $('btnVerPolitica').textContent = hd.ENLACE_POLITICA || 'Ver la política de datos';
+
+    // Enlace a la politica oficial dentro de la ventana.
+    var enlaceOficial = $('politicaEnlaceOficial');
+    if (hd.URL_POLITICA) {
+      enlaceOficial.href = hd.URL_POLITICA;
+    } else {
+      enlaceOficial.classList.add('oculto');
+    }
+
+    construirPolitica();
+  }
+
+  function construirPolitica() {
+    var hd = CONFIG.HABEAS_DATA;
+    $('politicaTitulo').textContent = hd.TITULO_POLITICA || 'Política de tratamiento de datos';
+
+    var cont = $('politicaCuerpo');
+    limpiar(cont);
+
+    (hd.POLITICA || []).forEach(function (sec) {
+      var bloque = crear('section', 'politica__seccion');
+
+      if (sec.titulo) {
+        var t = crear('h4', 'politica__titulo');
+        t.textContent = sec.titulo;
+        bloque.appendChild(t);
+      }
+      (sec.parrafos || []).forEach(function (p) {
+        var par = crear('p', 'politica__parrafo');
+        par.textContent = p;
+        bloque.appendChild(par);
+      });
+      if (sec.items && sec.items.length) {
+        var ul = crear('ul', 'politica__lista');
+        sec.items.forEach(function (it) {
+          var li = crear('li');
+          li.textContent = it;
+          ul.appendChild(li);
+        });
+        bloque.appendChild(ul);
+      }
+      cont.appendChild(bloque);
+    });
+  }
+
+  function alMarcarHabeas() {
+    var marcado = $('chkHabeas').checked;
+    estado.seleccion.aceptoHabeasData = marcado;
+    estado.seleccion.fechaAceptacionHD = marcado ? isoAhora_() : '';
+    validarPantallaBusqueda();
+  }
+
+  function abrirPolitica() {
+    $('capaPolitica').classList.remove('oculto');
+    $('politicaCuerpo').scrollTop = 0;
+    $('btnAceptarPolitica').focus();
+  }
+
+  function cerrarPolitica(aceptar) {
+    $('capaPolitica').classList.add('oculto');
+    // "Entendido" marca la casilla por comodidad; "cerrar" no la toca.
+    if (aceptar && hdActivo() && !$('chkHabeas').checked) {
+      $('chkHabeas').checked = true;
+      alMarcarHabeas();
+    }
+  }
+
+  function isoAhora_() {
+    try { return new Date().toISOString(); } catch (e) { return hoyTexto(); }
   }
 
   function avisarSiFaltaUrl() {
@@ -128,6 +222,11 @@
     $('inpDiligenciadoPor').addEventListener('blur', alEscribirNombre);
 
     $('btnIniciar').addEventListener('click', iniciarDiligenciamiento);
+
+    $('chkHabeas').addEventListener('change', alMarcarHabeas);
+    $('btnVerPolitica').addEventListener('click', abrirPolitica);
+    $('btnCerrarPolitica').addEventListener('click', function () { cerrarPolitica(false); });
+    $('btnAceptarPolitica').addEventListener('click', function () { cerrarPolitica(true); });
 
     $('btnAtras').addEventListener('click', confirmarSalida);
     $('btnEnviar').addEventListener('click', confirmarEnvio);
@@ -308,8 +407,17 @@
       ayuda.className = 'campo__ayuda';
     }
 
-    var listo = !!(s.subdireccion && s.codJardin && s.nivel && nombreOk);
+    var habeasOk = !hdActivo() || s.aceptoHabeasData;
+
+    var listo = !!(s.subdireccion && s.codJardin && s.nivel && nombreOk && habeasOk);
     $('btnIniciar').disabled = !listo;
+
+    // Pista si todo esta bien menos la casilla de proteccion de datos.
+    if (s.subdireccion && s.codJardin && s.nivel && nombreOk && !habeasOk) {
+      ayuda.textContent = 'Marque la casilla de protección de datos para continuar.';
+      ayuda.className = 'campo__ayuda campo__ayuda--error';
+    }
+
     return listo;
   }
 
@@ -879,6 +987,9 @@
     validarPantallaBusqueda();
     if (!$('btnIniciar').disabled) {
       iniciarDiligenciamiento();
+    } else if (hdActivo() && !estado.seleccion.aceptoHabeasData) {
+      // Solo falta aceptar protección de datos: lo llevamos a esa casilla.
+      $('bloqueHabeas').scrollIntoView({ behavior: 'smooth', block: 'center' });
     } else {
       $('selNivel').scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
@@ -1024,6 +1135,9 @@
       jardin: s.jardin,
       nivel: s.nivel,
       ninosEnElNivel: estado.ninos.length,
+      habeasDataAceptado: hdActivo() ? (s.aceptoHabeasData ? 'SI' : 'NO') : 'N/A',
+      habeasDataVersion: hdActivo() ? txt(CONFIG.HABEAS_DATA.VERSION) : '',
+      habeasDataFecha: s.fechaAceptacionHD || '',
       registros: registros
     };
 
@@ -1170,7 +1284,10 @@
   }
 
   document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape' && !$('capaModal').classList.contains('oculto')) {
+    if (e.key !== 'Escape') { return; }
+    if (!$('capaPolitica').classList.contains('oculto')) {
+      cerrarPolitica(false);
+    } else if (!$('capaModal').classList.contains('oculto')) {
       cerrarModal();
     }
   });
