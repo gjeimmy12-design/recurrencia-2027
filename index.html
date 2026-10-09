@@ -109,6 +109,22 @@
 
           </div>
 
+          <!-- Protección de datos personales · Habeas Data (se llena desde config.js) -->
+          <div class="habeas" id="bloqueHabeas">
+            <div class="habeas__aviso">
+              <span class="habeas__icono" aria-hidden="true">🔒</span>
+              <div>
+                <p class="habeas__texto" id="habeasAvisoCorto"></p>
+                <button type="button" class="habeas__enlace" id="btnVerPolitica"></button>
+              </div>
+            </div>
+            <label class="habeas__check">
+              <input type="checkbox" id="chkHabeas">
+              <span class="habeas__marca" aria-hidden="true"></span>
+              <span class="habeas__declaracion" id="habeasDeclaracion"></span>
+            </label>
+          </div>
+
           <button type="button" class="boton boton--principal boton--iniciar" id="btnIniciar" disabled>
             INICIAR DILIGENCIAMIENTO DE RECURRENCIA
           </button>
@@ -187,6 +203,27 @@
       <h3 class="modal__titulo" id="modalTitulo"></h3>
       <p class="modal__texto" id="modalTexto"></p>
       <div class="modal__acciones" id="modalAcciones"></div>
+    </div>
+  </div>
+
+  <!-- ============================== VENTANA DE LA POLÍTICA COMPLETA -->
+  <div class="capa oculto" id="capaPolitica" role="dialog" aria-modal="true"
+       aria-labelledby="politicaTitulo">
+    <div class="modal modal--politica">
+      <div class="modal__cabeza">
+        <h3 class="modal__titulo" id="politicaTitulo"></h3>
+        <button type="button" class="modal__cerrar" id="btnCerrarPolitica"
+                aria-label="Cerrar">✕</button>
+      </div>
+      <div class="politica" id="politicaCuerpo"></div>
+      <div class="modal__acciones">
+        <a class="boton boton--secundario" id="politicaEnlaceOficial" target="_blank" rel="noopener">
+          Ver política oficial completa
+        </a>
+        <button type="button" class="boton boton--principal" id="btnAceptarPolitica">
+          Entendido
+        </button>
+      </div>
     </div>
   </div>
 
