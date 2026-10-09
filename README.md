@@ -1,3 +1,4 @@
+[README.md](https://github.com/user-attachments/files/33259101/README.md)
 # Recurrencia 2027 · SDIS
 
 Aplicativo móvil para revisar si las niñas y los niños que hoy están en el
@@ -75,6 +76,30 @@ edad. Debajo, lo que hay que responder:
   (el segundo desplegable solo muestra los jardines de esa subdirección)
 
 **3. Confirmación.** Resumen de lo enviado.
+
+---
+
+## Protección de datos (Habeas Data)
+
+La pantalla de inicio muestra un aviso de privacidad y una casilla obligatoria
+de declaración; el botón de iniciar no se habilita hasta marcarla, y tras
+recargar hay que volver a aceptarla. Con cada envío se guarda en el consolidado
+si se aceptó, la versión del aviso y la fecha/hora de aceptación (columnas
+`HABEAS_DATA_ACEPTADO`, `HABEAS_DATA_VERSION`, `HABEAS_DATA_FECHA`).
+
+Todos los textos legales están en el bloque `HABEAS_DATA` de `config.js` y los
+puede ajustar el área jurídica sin tocar el resto del aplicativo:
+
+- `RESPONSABLE` — datos de la SDIS (verificar NIT y correo de habeas data).
+- `URL_POLITICA` — enlace a la política oficial vigente.
+- `AVISO_CORTO` y `DECLARACION` — textos de la pantalla de inicio.
+- `POLITICA` — secciones de la ventana de la política completa.
+- `VERSION` — cámbiela al ajustar textos; queda registrada en cada envío.
+- `ACTIVO: false` — desactiva todo el aviso si alguna vez se necesita.
+
+> Importante: estos textos se redactaron con base en la Ley 1581 de 2012 y la
+> política publicada de la SDIS, pero deben ser validados por la Oficina Asesora
+> Jurídica de la entidad antes de salir a producción.
 
 ---
 
